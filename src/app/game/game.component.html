@@ -3,6 +3,8 @@
     <app-playing-card
       *ngFor="let card of cards"
       [card]="card"
+      (click)="onCardClick(card)"
     ></app-playing-card>
   </div>
+  tuple: {{ shownCard | json }}
 </div>

@@ -1,4 +1,4 @@
-<div class="playingCards" (click)="card.show = !card.show">
+<div class="playingCards">
   <div *ngIf="!card.show; else shown" class="card back">&nbsp;</div>
   <ng-template #shown>
     <div class="card" [ngClass]="'rank-' + card.rank + ' ' + card.suit">

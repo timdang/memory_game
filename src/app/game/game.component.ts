@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PlayingCard } from '../playing-card/playing-card.model';
+import { sampleSize, shuffle, cloneDeep, isEqual } from 'lodash-es';
 
 export const DECK: PlayingCard[] = [
   {
@@ -270,9 +271,50 @@ export const DECK: PlayingCard[] = [
   styleUrls: ['./game.component.scss'],
 })
 export class GameComponent implements OnInit {
-  cards: PlayingCard[] = [...DECK];
+  cards: PlayingCard[];
+  private shownCard: PlayingCard;
+  private evaluatingMatch: boolean;
 
-  constructor() {}
+  ngOnInit(): void {
+    const cardSet = sampleSize(DECK, 12);
+    this.cards = shuffle([...cloneDeep(cardSet), ...cloneDeep(cardSet)]);
+  }
 
-  ngOnInit(): void {}
+  public onCardClick(card: PlayingCard): void {
+    if (card.show || this.evaluatingMatch) {
+      return;
+    }
+    card.show = true;
+    if (!this.shownCard) {
+      this.shownCard = card;
+      return;
+    }
+    this.evaluateMatch(card);
+  }
+
+  private evaluateMatch(card: PlayingCard): void {
+    this.evaluatingMatch = true;
+    setTimeout(() => {
+      if (
+        isEqual(this.shownCard.suit, card.suit) &&
+        isEqual(this.shownCard.rank, card.rank)
+      ) {
+        // remove cards from deck
+        this.cards = this.cards.filter(
+          (deckCard) =>
+            !(deckCard.rank === card.rank && deckCard.suit === card.suit)
+        );
+        this.clearShownCard();
+      } else {
+        this.shownCard.show = false;
+        card.show = false;
+        this.clearShownCard();
+      }
+      this.evaluatingMatch = false;
+    }, 500);
+  }
+
+  private clearShownCard(): void {
+    this.shownCard = null;
+  }
 }
