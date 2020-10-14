@@ -1,283 +1,32 @@
-import { Component, OnInit } from '@angular/core';
-import { PlayingCard } from '../playing-card/playing-card.model';
-import { sampleSize, shuffle, cloneDeep, isEqual } from 'lodash-es';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { isEqual, every } from 'lodash-es';
+import { Subscription } from 'rxjs';
 
-export const DECK: PlayingCard[] = [
-  {
-    suit: 'hearts',
-    rank: 'a',
-    show: false,
-  },
-  {
-    suit: 'hearts',
-    rank: 'k',
-    show: false,
-  },
-  {
-    suit: 'hearts',
-    rank: 'q',
-    show: false,
-  },
-  {
-    suit: 'hearts',
-    rank: 'j',
-    show: false,
-  },
-  {
-    suit: 'hearts',
-    rank: '10',
-    show: false,
-  },
-  {
-    suit: 'hearts',
-    rank: '9',
-    show: false,
-  },
-  {
-    suit: 'hearts',
-    rank: '8',
-    show: false,
-  },
-  {
-    suit: 'hearts',
-    rank: '7',
-    show: false,
-  },
-  {
-    suit: 'hearts',
-    rank: '6',
-    show: false,
-  },
-  {
-    suit: 'hearts',
-    rank: '5',
-    show: false,
-  },
-  {
-    suit: 'hearts',
-    rank: '4',
-    show: false,
-  },
-  {
-    suit: 'hearts',
-    rank: '3',
-    show: false,
-  },
-  {
-    suit: 'hearts',
-    rank: '2',
-    show: false,
-  },
-  {
-    suit: 'diams',
-    rank: 'a',
-    show: false,
-  },
-  {
-    suit: 'diams',
-    rank: 'k',
-    show: false,
-  },
-  {
-    suit: 'diams',
-    rank: 'q',
-    show: false,
-  },
-  {
-    suit: 'diams',
-    rank: 'j',
-    show: false,
-  },
-  {
-    suit: 'diams',
-    rank: '10',
-    show: false,
-  },
-  {
-    suit: 'diams',
-    rank: '9',
-    show: false,
-  },
-  {
-    suit: 'diams',
-    rank: '8',
-    show: false,
-  },
-  {
-    suit: 'diams',
-    rank: '7',
-    show: false,
-  },
-  {
-    suit: 'diams',
-    rank: '6',
-    show: false,
-  },
-  {
-    suit: 'diams',
-    rank: '5',
-    show: false,
-  },
-  {
-    suit: 'diams',
-    rank: '4',
-    show: false,
-  },
-  {
-    suit: 'diams',
-    rank: '3',
-    show: false,
-  },
-  {
-    suit: 'diams',
-    rank: '2',
-    show: false,
-  },
-  {
-    suit: 'spades',
-    rank: 'a',
-    show: false,
-  },
-  {
-    suit: 'spades',
-    rank: 'k',
-    show: false,
-  },
-  {
-    suit: 'spades',
-    rank: 'q',
-    show: false,
-  },
-  {
-    suit: 'spades',
-    rank: 'j',
-    show: false,
-  },
-  {
-    suit: 'spades',
-    rank: '10',
-    show: false,
-  },
-  {
-    suit: 'spades',
-    rank: '9',
-    show: false,
-  },
-  {
-    suit: 'spades',
-    rank: '8',
-    show: false,
-  },
-  {
-    suit: 'spades',
-    rank: '7',
-    show: false,
-  },
-  {
-    suit: 'spades',
-    rank: '6',
-    show: false,
-  },
-  {
-    suit: 'spades',
-    rank: '5',
-    show: false,
-  },
-  {
-    suit: 'spades',
-    rank: '4',
-    show: false,
-  },
-  {
-    suit: 'spades',
-    rank: '3',
-    show: false,
-  },
-  {
-    suit: 'spades',
-    rank: '2',
-    show: false,
-  },
-  {
-    suit: 'clubs',
-    rank: 'a',
-    show: false,
-  },
-  {
-    suit: 'clubs',
-    rank: 'k',
-    show: false,
-  },
-  {
-    suit: 'clubs',
-    rank: 'q',
-    show: false,
-  },
-  {
-    suit: 'clubs',
-    rank: 'j',
-    show: false,
-  },
-  {
-    suit: 'clubs',
-    rank: '10',
-    show: false,
-  },
-  {
-    suit: 'clubs',
-    rank: '9',
-    show: false,
-  },
-  {
-    suit: 'clubs',
-    rank: '8',
-    show: false,
-  },
-  {
-    suit: 'clubs',
-    rank: '7',
-    show: false,
-  },
-  {
-    suit: 'clubs',
-    rank: '6',
-    show: false,
-  },
-  {
-    suit: 'clubs',
-    rank: '5',
-    show: false,
-  },
-  {
-    suit: 'clubs',
-    rank: '4',
-    show: false,
-  },
-  {
-    suit: 'clubs',
-    rank: '3',
-    show: false,
-  },
-  {
-    suit: 'clubs',
-    rank: '2',
-    show: false,
-  },
-];
+import { GameService } from '../game-service.service';
+import { PlayingCard } from '../playing-card/playing-card.model';
 
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
-export class GameComponent implements OnInit {
+export class GameComponent implements OnInit, OnDestroy {
+  constructor(private gameService: GameService) {}
+
   cards: PlayingCard[];
   private shownCard: PlayingCard;
   private evaluatingMatch: boolean;
+  private subscription = new Subscription();
 
   ngOnInit(): void {
-    const cardSet = sampleSize(DECK, 12);
-    this.cards = shuffle([...cloneDeep(cardSet), ...cloneDeep(cardSet)]);
+    this.subscription.add(
+      this.gameService.deck$.subscribe((deck) => (this.cards = deck))
+    );
+    this.gameService.shuffleDeck();
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   public onCardClick(card: PlayingCard): void {
@@ -292,26 +41,39 @@ export class GameComponent implements OnInit {
     this.evaluateMatch(card);
   }
 
-  private evaluateMatch(card: PlayingCard): void {
+  private evaluateMatch(clickedCard: PlayingCard): void {
     this.evaluatingMatch = true;
     setTimeout(() => {
       if (
-        isEqual(this.shownCard.suit, card.suit) &&
-        isEqual(this.shownCard.rank, card.rank)
+        isEqual(this.shownCard.suit, clickedCard.suit) &&
+        isEqual(this.shownCard.rank, clickedCard.rank)
       ) {
         // remove cards from deck
-        this.cards = this.cards.filter(
-          (deckCard) =>
-            !(deckCard.rank === card.rank && deckCard.suit === card.suit)
-        );
+        this.cards = this.cards.map((deckCard: PlayingCard) => {
+          return {
+            ...deckCard,
+            matched:
+              deckCard.matched ||
+              (deckCard.rank === clickedCard.rank &&
+                deckCard.suit === clickedCard.suit),
+          };
+        });
         this.clearShownCard();
+        this.checkForGameOver();
       } else {
         this.shownCard.show = false;
-        card.show = false;
+        clickedCard.show = false;
         this.clearShownCard();
       }
       this.evaluatingMatch = false;
     }, 500);
+  }
+
+  private checkForGameOver(): void {
+    if (every(this.cards, (card) => card.matched)) {
+      alert('Game Over');
+      this.gameService.shuffleDeck();
+    }
   }
 
   private clearShownCard(): void {

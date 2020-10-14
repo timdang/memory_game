@@ -1,8 +1,12 @@
 :host {
   padding: var(--default-padding);
-  margin: 10px;
   .card {
-    min-width: 100px;
+    min-width: 110px;
     min-height: 150px;
+  }
+
+  .hidden {
+    opacity: 0;
+    // retain spacing/shape
   }
 }
