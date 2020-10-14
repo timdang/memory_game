@@ -1,0 +1,12 @@
+:host {
+  display: flex;
+  padding: var(--default-padding);
+
+  .play-grid {
+    width: 100%;
+    background-color: rebeccapurple;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+}

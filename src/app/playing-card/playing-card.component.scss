@@ -1,0 +1,7 @@
+:host {
+  padding: var(--default-padding);
+  .card {
+    min-width: 100px;
+    min-height: 150px;
+  }
+}
