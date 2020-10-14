@@ -1,9 +1,9 @@
-<div class="playingCards" [class.hidden]="card.matched">
-  <div *ngIf="!card.show; else shown" class="card back">&nbsp;</div>
+<div class="playingCards" [class.hidden]="card?.matched">
+  <div *ngIf="!card?.show; else shown" class="card back">&nbsp;</div>
   <ng-template #shown>
-    <div class="card" [ngClass]="'rank-' + card.rank + ' ' + card.suit">
-      <span class="rank">{{ card.rank | uppercase }}</span>
-      <span class="suit" [innerHTML]="'&' + card.suit + ';'"></span>
+    <div class="card" [ngClass]="'rank-' + card?.rank + ' ' + card?.suit">
+      <span class="rank">{{ card?.rank | uppercase }}</span>
+      <span class="suit" [innerHTML]="'&' + card?.suit + ';'"></span>
     </div>
   </ng-template>
 </div>
